@@ -13,7 +13,8 @@ function AddMCQ() {
     option3: '',
     option4: '',
     correctAnswer: '',
-    timeLimit: 60
+    timeLimit: 60,
+    explanation: ''
   })
   const [image, setImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
@@ -73,7 +74,8 @@ function AddMCQ() {
         image: imagePreview || null,
         options: [formData.option1, formData.option2, formData.option3, formData.option4],
         correctAnswer: formData.correctAnswer,
-        timeLimit: parseInt(formData.timeLimit) || 60
+        timeLimit: parseInt(formData.timeLimit) || 60,
+        explanation: formData.explanation || ''
       }
 
       await createMCQ(mcqData)
@@ -88,7 +90,8 @@ function AddMCQ() {
         option3: '',
         option4: '',
         correctAnswer: '',
-        timeLimit: 60
+        timeLimit: 60,
+        explanation: ''
       })
       setImage(null)
       setImagePreview(null)
@@ -240,6 +243,18 @@ function AddMCQ() {
                 {formData.option3 && <option value={formData.option3}>{formData.option3}</option>}
                 {formData.option4 && <option value={formData.option4}>{formData.option4}</option>}
               </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Explanation (Optional)</label>
+              <textarea
+                name="explanation"
+                value={formData.explanation}
+                onChange={handleChange}
+                className="form-textarea"
+                placeholder="Enter explanation for this question..."
+                rows="3"
+              />
             </div>
 
             <button type="submit" className="form-submit-button" disabled={loading}>

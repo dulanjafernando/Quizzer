@@ -38,6 +38,11 @@ const mcqSchema = new mongoose.Schema(
       type: Number,
       required: false,
       default: 60
+    },
+    explanation: {
+      type: String,
+      required: false,
+      default: null
     }
   },
   {

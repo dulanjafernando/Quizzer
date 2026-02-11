@@ -7,6 +7,7 @@ import Quiz from './Quiz.jsx'
 import Admin from './Admin.jsx'
 import AddMCQ from './AddMCQ.jsx'
 import EditMCQ from './EditMCQ.jsx'
+import History from './History.jsx'
 
 function AuthPages() {
   return (
@@ -36,6 +37,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/home" element={<Home />} />
+        <Route path="/marks" element={<History />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/addmcq" element={<AddMCQ />} />
         <Route path="/editmcq" element={<EditMCQ />} />

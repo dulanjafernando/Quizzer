@@ -19,6 +19,14 @@ const getMCQsByCategory = async (req, res) => {
   try {
     const { category } = req.params;
     const mcqs = await MCQ.find({ category });
+    
+    // Log to verify explanations are included
+    console.log(`[Backend] Fetching MCQs for category: ${category}`);
+    console.log(`[Backend] Found ${mcqs.length} MCQs`);
+    mcqs.forEach((mcq, idx) => {
+      console.log(`[Backend] MCQ ${idx + 1}: explanation="${mcq.explanation ? mcq.explanation.substring(0, 40) : 'EMPTY'}"`);
+    });
+    
     res.json(mcqs);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -45,7 +53,7 @@ const getMCQById = async (req, res) => {
 // @access  Private (Admin)
 const createMCQ = async (req, res) => {
   try {
-    const { category, question, image, options, correctAnswer, timeLimit } = req.body;
+    const { category, question, image, options, correctAnswer, timeLimit, explanation } = req.body;
 
     // Validation
     if (!category || !question || !options || !correctAnswer) {
@@ -66,7 +74,8 @@ const createMCQ = async (req, res) => {
       image: image || null,
       options,
       correctAnswer,
-      timeLimit: timeLimit || 60
+      timeLimit: timeLimit || 60,
+      explanation: explanation || null
     });
 
     res.status(201).json(mcq);
@@ -80,7 +89,7 @@ const createMCQ = async (req, res) => {
 // @access  Private (Admin)
 const updateMCQ = async (req, res) => {
   try {
-    const { category, question, image, options, correctAnswer, timeLimit } = req.body;
+    const { category, question, image, options, correctAnswer, timeLimit, explanation } = req.body;
 
     const mcq = await MCQ.findById(req.params.id);
 
@@ -103,6 +112,7 @@ const updateMCQ = async (req, res) => {
     mcq.options = options || mcq.options;
     mcq.correctAnswer = correctAnswer || mcq.correctAnswer;
     mcq.timeLimit = timeLimit !== undefined ? timeLimit : mcq.timeLimit;
+    mcq.explanation = explanation !== undefined ? explanation : mcq.explanation;
 
     const updatedMCQ = await mcq.save();
 

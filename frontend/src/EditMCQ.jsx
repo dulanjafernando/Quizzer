@@ -18,7 +18,8 @@ function EditMCQ() {
     option3: '',
     option4: '',
     correctAnswer: '',
-    timeLimit: 60
+    timeLimit: 60,
+    explanation: ''
   })
   const [imagePreview, setImagePreview] = useState(null)
   const [newImage, setNewImage] = useState(null)
@@ -65,7 +66,8 @@ function EditMCQ() {
       option3: question.options[2],
       option4: question.options[3],
       correctAnswer: question.correctAnswer,
-      timeLimit: question.timeLimit || 60
+      timeLimit: question.timeLimit || 60,
+      explanation: question.explanation || ''
     })
     setImagePreview(question.image || null)
     setNewImage(null)
@@ -119,7 +121,8 @@ function EditMCQ() {
         image: imagePreview || null,
         options: [editFormData.option1, editFormData.option2, editFormData.option3, editFormData.option4],
         correctAnswer: editFormData.correctAnswer,
-        timeLimit: parseInt(editFormData.timeLimit) || 60
+        timeLimit: parseInt(editFormData.timeLimit) || 60,
+        explanation: editFormData.explanation || ''
       }
 
       await updateMCQ(selectedQuestion._id, mcqData)
@@ -270,6 +273,18 @@ function EditMCQ() {
                 </select>
               </div>
 
+              <div className="form-group">
+                <label className="form-label">Explanation (Optional)</label>
+                <textarea
+                  name="explanation"
+                  value={editFormData.explanation}
+                  onChange={handleChange}
+                  className="form-textarea"
+                  placeholder="Enter explanation for this question..."
+                  rows="3"
+                />
+              </div>
+
               <div className="form-actions">
                 <button type="submit" className="form-submit-button">
                   Save Changes
@@ -300,6 +315,12 @@ function EditMCQ() {
                   <div className="question-meta">
                     <span className="question-time-badge">⏱ {question.timeLimit || 60}s</span>
                   </div>
+                  {question.explanation && (
+                    <div className="question-explanation-box">
+                      <strong className="explanation-heading">💡 Explanation:</strong>
+                      <p className="explanation-content">{question.explanation}</p>
+                    </div>
+                  )}
                   <div className="question-options">
                     {question.options.map((opt, idx) => (
                       <div key={idx} className="option-preview">

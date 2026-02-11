@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const mcqRoutes = require('./routes/mcqRoutes');
+const quizHistoryRoutes = require('./routes/quizHistoryRoutes');
 
 // Load env vars
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Routes
 app.use('/api/mcqs', mcqRoutes);
+app.use('/api/quiz-history', quizHistoryRoutes);
 
 // Root route
 app.get('/', (req, res) => {
