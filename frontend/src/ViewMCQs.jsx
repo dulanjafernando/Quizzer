@@ -164,137 +164,163 @@ function ViewMCQs() {
       <style jsx>{`
         .view-mcqs-container {
           min-height: 100vh;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+          padding-bottom: 40px;
         }
 
         .view-mcqs-header {
-          background: rgba(0, 0, 0, 0.7);
-          padding: 30px;
-          text-align: center;
+          background: linear-gradient(135deg, rgba(30, 60, 114, 0.95) 0%, rgba(42, 82, 152, 0.95) 100%);
+          padding: 40px 30px;
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+          border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         .view-mcqs-header-content {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          max-width: 1200px;
+          max-width: 1400px;
           margin: 0 auto;
         }
 
         .view-mcqs-title {
           color: white;
-          font-size: 2em;
+          font-size: 2.5em;
           margin: 0;
+          font-weight: 700;
+          letter-spacing: 0.5px;
         }
 
         .view-mcqs-back-button {
-          background: #667eea;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
           border: none;
-          padding: 10px 20px;
-          border-radius: 5px;
+          padding: 12px 28px;
+          border-radius: 8px;
           cursor: pointer;
-          font-size: 1em;
-          transition: background 0.3s;
+          font-size: 1.05em;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .view-mcqs-back-button:hover {
-          background: #764ba2;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
         }
 
         .view-mcqs-content {
-          max-width: 1200px;
+          max-width: 1400px;
           margin: 0 auto;
-          padding: 20px;
+          padding: 30px 20px;
         }
 
         .view-mcqs-filters {
           background: white;
-          padding: 20px;
-          border-radius: 10px;
+          padding: 25px;
+          border-radius: 12px;
           margin-bottom: 30px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+          border-top: 4px solid #667eea;
         }
 
         .filter-title {
-          margin: 0 0 15px 0;
-          color: #333;
-        }
-
-        .category-filter-buttons {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-
-        .category-filter-btn {
-          background: #f0f0f0;
-          border: 2px solid #ddd;
-          padding: 10px 15px;
-          border-radius: 25px;
-          cursor: pointer;
-          font-size: 0.9em;
-          transition: all 0.3s;
+          margin: 0 0 20px 0;
+          color: #000;
+          font-size: 1.3em;
+          font-weight: 700;
           display: flex;
           align-items: center;
           gap: 8px;
         }
 
+        .category-filter-buttons {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .category-filter-btn {
+          background: #f5f5f5;
+          border: 2px solid #ddd;
+          padding: 12px 18px;
+          border-radius: 25px;
+          cursor: pointer;
+          font-size: 0.95em;
+          font-weight: 600;
+          color: #000;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
         .category-filter-btn:hover {
           background: #e8e8e8;
           border-color: #667eea;
+          color: #000;
+          transform: translateY(-2px);
         }
 
         .category-filter-btn.active {
-          background: #667eea;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
           border-color: #667eea;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .count-badge {
           background: rgba(0, 0, 0, 0.1);
-          padding: 2px 8px;
+          padding: 3px 10px;
           border-radius: 12px;
-          font-size: 0.85em;
+          font-size: 0.9em;
           font-weight: bold;
+          color: #000;
         }
 
         .category-filter-btn.active .count-badge {
           background: rgba(255, 255, 255, 0.3);
+          color: white;
         }
 
         .view-mcqs-list {
           background: white;
-          border-radius: 10px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
           overflow: hidden;
         }
 
         .loading-spinner,
         .no-mcqs-message {
-          padding: 40px;
+          padding: 50px;
           text-align: center;
-          color: #666;
+          color: #000;
+          font-size: 1.05em;
+          font-weight: 500;
         }
 
         .mcqs-count {
-          padding: 15px 20px;
-          background: #f9f9f9;
+          padding: 18px 25px;
+          background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
           margin: 0;
-          color: #666;
-          border-bottom: 1px solid #eee;
-          font-size: 0.9em;
+          color: #000;
+          border-bottom: 1px solid #e8e8e8;
+          font-size: 1em;
+          font-weight: 600;
         }
 
         .mcq-card {
           border-bottom: 1px solid #eee;
-          padding: 20px;
+          padding: 25px;
           cursor: pointer;
-          transition: background 0.3s;
+          transition: all 0.3s ease;
+          background: white;
         }
 
         .mcq-card:hover {
-          background: #f9f9f9;
+          background: #f8f9ff;
+          border-left: 4px solid #667eea;
+          padding-left: 21px;
         }
 
         .mcq-card:last-child {
@@ -305,72 +331,80 @@ function ViewMCQs() {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 10px;
+          margin-bottom: 15px;
         }
 
         .mcq-meta {
           display: flex;
-          gap: 10px;
+          gap: 12px;
           align-items: center;
         }
 
         .mcq-index {
-          background: #667eea;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
-          width: 30px;
-          height: 30px;
+          width: 35px;
+          height: 35px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: bold;
-          font-size: 0.9em;
+          font-size: 1em;
+          box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
         }
 
         .mcq-category {
-          background: #e8f0ff;
-          color: #667eea;
-          padding: 5px 12px;
+          background: linear-gradient(135deg, #e8f0ff 0%, #f0e8ff 100%);
+          color: #000;
+          padding: 6px 14px;
           border-radius: 20px;
-          font-size: 0.85em;
-          font-weight: 600;
+          font-size: 0.9em;
+          font-weight: 700;
+          border: 1px solid #ddd;
         }
 
         .mcq-time {
-          font-size: 0.9em;
-          color: #666;
+          font-size: 0.95em;
+          color: #000;
+          font-weight: 500;
         }
 
         .mcq-toggle {
-          font-size: 1.2em;
+          font-size: 1.3em;
           color: #667eea;
+          font-weight: bold;
         }
 
         .mcq-question {
           margin-bottom: 15px;
           padding-bottom: 15px;
-          border-bottom: 1px solid #eee;
+          border-bottom: 2px solid #f0f0f0;
         }
 
         .mcq-question h4 {
           margin: 0;
-          color: #333;
-          font-size: 1.1em;
+          color: #000;
+          font-size: 1.2em;
+          font-weight: 700;
+          line-height: 1.6;
         }
 
         .mcq-details {
-          margin-top: 15px;
-          padding-top: 15px;
-          border-top: 1px solid #eee;
+          margin-top: 18px;
+          padding-top: 18px;
+          border-top: 2px solid #f0f0f0;
         }
 
         .mcq-options h5,
         .mcq-explanation h5,
         .mcq-image h5 {
-          margin: 0 0 10px 0;
-          color: #667eea;
-          font-size: 0.9em;
+          margin: 0 0 12px 0;
+          color: #000;
+          font-size: 1em;
           text-transform: uppercase;
+          font-weight: 700;
+          letter-spacing: 0.5px;
         }
 
         .mcq-options ul {
@@ -380,60 +414,76 @@ function ViewMCQs() {
         }
 
         .mcq-options li {
-          padding: 8px 12px;
-          margin: 5px 0;
-          background: #f9f9f9;
-          border-left: 3px solid #ddd;
-          border-radius: 3px;
+          padding: 12px 15px;
+          margin: 8px 0;
+          background: #f8f9fa;
+          border-left: 4px solid #ddd;
+          border-radius: 6px;
           display: flex;
           align-items: center;
-          gap: 10px;
-          transition: all 0.3s;
+          gap: 12px;
+          transition: all 0.3s ease;
+          color: #000;
+          font-weight: 500;
+        }
+
+        .mcq-options li:hover {
+          background: #f0f4ff;
+          border-left-color: #667eea;
         }
 
         .mcq-options li.correct-answer {
-          background: #e8f5e9;
+          background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
           border-left-color: #4caf50;
+          font-weight: 600;
         }
 
         .option-letter {
           font-weight: bold;
           color: #667eea;
-          min-width: 25px;
+          min-width: 28px;
+          font-size: 1.05em;
         }
 
         .option-text {
           flex: 1;
+          color: #000;
+          font-weight: 500;
         }
 
         .correct-badge {
-          background: #4caf50;
+          background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
           color: white;
-          padding: 2px 8px;
-          border-radius: 3px;
-          font-size: 0.75em;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 0.8em;
           font-weight: bold;
+          white-space: nowrap;
         }
 
         .mcq-explanation {
-          margin-top: 15px;
-          padding: 12px;
-          background: #fff3cd;
-          border-left: 3px solid #ffc107;
-          border-radius: 3px;
+          margin-top: 18px;
+          padding: 15px 18px;
+          background: linear-gradient(135deg, #fff3cd 0%, #fffbf0 100%);
+          border-left: 4px solid #ffc107;
+          border-radius: 6px;
+          border: 1px solid #ffe082;
         }
 
         .mcq-explanation p {
           margin: 0;
-          color: #856404;
-          font-size: 0.95em;
+          color: #000;
+          font-size: 1em;
+          font-weight: 500;
+          line-height: 1.6;
         }
 
         .mcq-image {
-          margin-top: 15px;
-          padding: 12px;
-          background: #f0f0f0;
-          border-radius: 3px;
+          margin-top: 18px;
+          padding: 18px;
+          background: linear-gradient(135deg, #f0f0f0 0%, #f8f8f8 100%);
+          border-radius: 6px;
+          border: 1px solid #e0e0e0;
         }
 
         @media (max-width: 768px) {
