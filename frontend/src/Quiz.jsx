@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getMCQsByCategory } from './api/mcqApi'
-import { saveQuizResult, getQuizHistoryByCategory, deleteQuizHistory } from './api/quizHistoryApi'
+import { saveQuizResult } from './api/quizHistoryApi'
 import './App.css'
 
 function Quiz() {
@@ -31,189 +31,37 @@ function Quiz() {
     setError('')
     
     try {
-      const userId = localStorage.getItem('userId') || 'guest'
+      // OPTIMIZATION: Always fetch fresh questions for new quiz attempts.
+      // This allows multiple attempts dynamically.
+      console.log('[Frontend] Loading fresh questions for new quiz attempt')
+      const freshMCQs = await getMCQsByCategory(category)
       
-      // First priority: Check localStorage for complete data
-      const localStorageData = localStorage.getItem(`quizResult_${category}`)
-      if (localStorageData) {
-        try {
-          const resultData = JSON.parse(localStorageData)
-          if (resultData.questions && Array.isArray(resultData.questions) && resultData.questions.length > 0) {
-            console.log('Loading from localStorage with full details')
-            setQuestions(resultData.questions)
-            setAnswers(resultData.answers || {})
-            setScore(resultData.score)
-            setSavedDatabaseResult(null) // No database result needed
-            setShowResults(true)
-            setIsSubmitted(true)
-            setTimeExpired(true)
-            setHasDetailedAnswers(true)
-            setLoading(false)
-            return
-          }
-        } catch (error) {
-          console.error('Error parsing localStorage data:', error)
-        }
-      }
+      console.log('[Frontend] Fresh questions loaded:', freshMCQs.length)
       
-      // Second priority: Check database for saved result
-      try {
-        const savedQuizResult = await getQuizHistoryByCategory(userId, category)
-        
-        if (savedQuizResult) {
-          console.log('[Load] Loading from database:', savedQuizResult)
-          console.log('[Load] Saved review details count:', savedQuizResult.reviewDetails ? savedQuizResult.reviewDetails.length : 0)
-          if (savedQuizResult.reviewDetails) {
-            savedQuizResult.reviewDetails.forEach((rd, idx) => {
-              console.log(`[Load] Saved Review Detail ${idx + 1}: explanation="${rd.explanation ? rd.explanation.substring(0, 50) : 'EMPTY'}"`)
-            })
-          }
-          
-          // If we have review details, fetch fresh MCQ data to get updated explanations
-          if (savedQuizResult.reviewDetails && Array.isArray(savedQuizResult.reviewDetails) && savedQuizResult.reviewDetails.length > 0) {
-            try {
-              // Fetch fresh MCQ data to get latest explanations
-              const freshMCQs = await getMCQsByCategory(category)
-              
-              console.log('[Frontend] Fresh MCQs fetched:', freshMCQs.length)
-              freshMCQs.forEach((mcq, idx) => {
-                console.log(`[Frontend] Fresh MCQ ${idx + 1}: ID=${mcq._id}, explanation="${mcq.explanation ? mcq.explanation.substring(0, 40) : 'EMPTY'}"`)
-              })
-              
-              // Create a map of MCQs by ID for quick lookup
-              const mcqMap = {}
-              freshMCQs.forEach(mcq => {
-                mcqMap[mcq._id] = mcq
-              })
-              
-              console.log('[Frontend] Saved review details:', savedQuizResult.reviewDetails.length)
-              
-              // Merge saved review details with fresh MCQ explanations
-              const enhancedReviewDetails = savedQuizResult.reviewDetails.map(review => {
-                const freshExplanation = mcqMap[review.questionId] && mcqMap[review.questionId].explanation
-                const finalExplanation = freshExplanation || review.explanation || ''
-                console.log(`[Frontend] Review Q${review.questionId}: Fresh='${freshExplanation ? freshExplanation.substring(0, 30) : 'NONE'}' | Saved='${review.explanation ? review.explanation.substring(0, 30) : 'NONE'}' | Final='${finalExplanation ? finalExplanation.substring(0, 30) : 'EMPTY'}'`)
-                return {
-                  ...review,
-                  explanation: finalExplanation
-                }
-              })
-              
-              console.log('[Frontend] Enhanced review details ready:', enhancedReviewDetails)
-              
-              // Create questions with fresh explanations
-              const dummyQuestions = enhancedReviewDetails.map((review, idx) => {
-                const q = {
-                  _id: review.questionId,
-                  question: review.question,
-                  options: review.options || ['A', 'B', 'C', 'D'],
-                  correctAnswer: review.correctAnswer,
-                  image: review.image,
-                  explanation: review.explanation
-                }
-                console.log(`[Frontend] DummyQuestion ${idx + 1}: explanation="${q.explanation ? q.explanation.substring(0, 40) : 'EMPTY'}"`)
-                return q
-              })
-              
-              setQuestions(dummyQuestions)
-              setScore(savedQuizResult.score)
-              setSavedDatabaseResult(savedQuizResult)
-              setAnswers({})
-              setShowResults(true)
-              setIsSubmitted(true)
-              setTimeExpired(true)
-              setHasDetailedAnswers(true)
-              setSavedReviewDetails(enhancedReviewDetails)
-              setLoading(false)
-              return
-            } catch (mcqError) {
-              console.error('[Frontend] Could not fetch fresh MCQs, using saved data:', mcqError)
-              
-              // Fallback: use saved review details as-is
-              const dummyQuestions = savedQuizResult.reviewDetails.map((review, idx) => {
-                const q = {
-                  _id: review.questionId,
-                  question: review.question,
-                  options: review.options || ['A', 'B', 'C', 'D'],
-                  correctAnswer: review.correctAnswer,
-                  image: review.image,
-                  explanation: review.explanation
-                }
-                console.log(`[Fallback] DummyQuestion ${idx + 1}: explanation="${q.explanation ? q.explanation.substring(0, 40) : 'EMPTY'}"`)
-                return q
-              })
-              
-              setQuestions(dummyQuestions)
-              setScore(savedQuizResult.score)
-              setSavedDatabaseResult(savedQuizResult)
-              setAnswers({})
-              setShowResults(true)
-              setIsSubmitted(true)
-              setTimeExpired(true)
-              setHasDetailedAnswers(true)
-              setSavedReviewDetails(savedQuizResult.reviewDetails)
-              setLoading(false)
-              return
-            }
-          } else {
-            // Fallback to dummy questions if no review details
-            const dummyQuestions = Array(savedQuizResult.totalQuestions).fill(null).map((_, i) => ({
-              _id: `dummy-${i}`,
-              question: `Question ${i + 1}`,
-              options: ['A', 'B', 'C', 'D'],
-              correctAnswer: 'A'
-            }))
-            
-            setQuestions(dummyQuestions)
-            setScore(savedQuizResult.score)
-            setSavedDatabaseResult(savedQuizResult)
-            setAnswers({})
-            setShowResults(true)
-            setIsSubmitted(true)
-            setTimeExpired(true)
-            setHasDetailedAnswers(false)
-            setLoading(false)
-            return
-          }
-        }
-      } catch (dbError) {
-        console.log('No saved result in database, continuing to fresh quiz')
-      }
-      
-      // Third priority: Load fresh questions for new quiz
-      console.log('[Frontend] Loading fresh questions for new quiz')
-      const data = await getMCQsByCategory(category)
-      
-      // Log explanation data
-      console.log('[Frontend] Fresh questions loaded:', data)
-      data.forEach((q, idx) => {
-        console.log(`[Frontend] Q${idx + 1}: question="${q.question.substring(0, 30)}..." | explanation="${q.explanation ? q.explanation.substring(0, 50) : 'EMPTY'}"`)
-      })
-      
-      if (data.length === 0) {
+      if (freshMCQs.length === 0) {
         setError('No questions available for this category')
         setQuestions([])
         setLoading(false)
         return
       }
 
-      setQuestions(data)
-      setSavedDatabaseResult(null)
-      setScore(0)
+      setQuestions(freshMCQs)
+      // Recalculate time limit when fetching fresh questions
+      const totalTime = freshMCQs.reduce((sum, q) => sum + (q.timeLimit || 60), 0)
+      setTotalQuizTime(totalTime)
+      
       setAnswers({})
+      setScore(0)
+      setCurrentQuestionIndex(0)
       setShowResults(false)
       setIsSubmitted(false)
       setTimeExpired(false)
       setHasDetailedAnswers(true)
       
-      // Calculate total time for all questions
-      const totalTime = data.reduce((sum, q) => sum + (q.timeLimit || 60), 0)
-      setTotalQuizTime(totalTime)
-      
       setLoading(false)
     } catch (error) {
-      setError('Failed to load questions. Please try again.')
       console.error('Error fetching questions:', error)
+      setError('Failed to load questions. Please try again.')
       setLoading(false)
     }
   }
@@ -286,19 +134,17 @@ function Quiz() {
     const percentage = parseFloat(((correctCount / totalQuestions) * 100).toFixed(2))
     const passed = percentage >= 35 // Changed from 50% to 35%
     
+    console.log('[Quiz] handleSubmit called');
+    console.log('[Quiz] Category:', category);
+    console.log('[Quiz] Total Questions:', totalQuestions);
+    console.log('[Quiz] Correct Count:', correctCount);
+    console.log('[Quiz] Percentage:', percentage);
+    console.log('[Quiz] Passed:', passed);
+    
     setScore(correctCount)
     setShowResults(true)
     setHasDetailedAnswers(true) // We just submitted, so we have detailed answers
     setSavedDatabaseResult(null) // Clear saved result since this is a new submission
-    
-    // Save result to localStorage as backup
-    const resultData = {
-      questions,
-      answers,
-      score: correctCount,
-      timestamp: Date.now()
-    }
-    localStorage.setItem(`quizResult_${category}`, JSON.stringify(resultData))
     
     // Build review details array with explanations
     const reviewDetails = questions.map((question, idx) => {
@@ -320,13 +166,9 @@ function Quiz() {
     try {
       const userId = localStorage.getItem('userId') || 'guest'
       const userName = localStorage.getItem('userName') || 'Guest User'
+      const token = localStorage.getItem('token')
       
-      console.log('[Database] Saving quiz result with reviewDetails:', reviewDetails.length)
-      reviewDetails.forEach((rd, idx) => {
-        console.log(`[Database] Review Detail ${idx + 1}: explanation="${rd.explanation ? rd.explanation.substring(0, 50) : 'EMPTY'}"`)
-      })
-      
-      await saveQuizResult({
+      const savePayload = {
         userId,
         userName,
         category,
@@ -336,30 +178,46 @@ function Quiz() {
         passed,
         submittedAt: new Date(),
         reviewDetails // Include review details with explanations
-      })
+      }
       
-      console.log('[Database] Quiz result saved to database successfully with review details')
+      console.log('[Database] Saving quiz result for category:', category)
+      console.log('[Database] UserId:', userId)
+      console.log('[Database] UserName:', userName)
+      console.log('[Database] Token exists:', !!token)
+      console.log('[Database] Category:', category)
+      console.log('[Database] Score:', correctCount, '/', totalQuestions)
+      console.log('[Database] ReviewDetails count:', reviewDetails.length)
+      console.log('[Database] Full payload:', savePayload)
+      
+      const result = await saveQuizResult(savePayload)
+      
+      console.log('[Database] ✓ Quiz result saved successfully!')
+      console.log('[Database] Saved result ID:', result._id)
+      console.log('[Database] Saved result category:', result.category)
+      console.log('[Database] Saved result score:', result.score)
+      console.log('[Database] Saved result userId:', result.userId)
+      
+      // Set flag for History page to refresh and show the new result
+      sessionStorage.setItem('refreshHistoryAfterSave', 'true')
+      sessionStorage.setItem('lastSavedCategory', category)
+      
+      // Navigate to history page immediately
+      navigate('/marks')
     } catch (error) {
-      console.error('[Database] Failed to save quiz result to database:', error)
+      console.error('[Database] ✗ Failed to save quiz result for category:', category)
+      console.error('[Database] Error response status:', error.response?.status)
+      console.error('[Database] Error response data:', error.response?.data)
+      console.error('[Database] Error message:', error.message)
+      console.error('[Database] Error:', error)
+      // Show alert to user
+      alert(`⚠️ Failed to save quiz result for ${category}. Please try again or contact support. Error: ${error.message}`);
     }
   }
 
   const handleRetakeQuiz = async () => {
-    // Clear saved result from localStorage
-    localStorage.removeItem(`quizResult_${category}`)
-    
-    // Try to delete from database
-    try {
-      const userId = localStorage.getItem('userId') || 'guest'
-      const savedQuizResult = await getQuizHistoryByCategory(userId, category)
-      
-      if (savedQuizResult && savedQuizResult._id) {
-        await deleteQuizHistory(savedQuizResult._id)
-        console.log('Quiz result deleted from database for retake')
-      }
-    } catch (error) {
-      console.error('Error deleting quiz result from database:', error)
-    }
+    // Simply reset for a new attempt - don't delete the old result
+    // Multiple attempts in the same category are now saved separately
+    console.log('[Quiz] Starting new attempt for category:', category);
     
     // Fetch fresh questions for new quiz
     try {
@@ -378,8 +236,8 @@ function Quiz() {
       setTimeExpired(false)
       setScore(0)
       setCurrentQuestionIndex(0)
-      setHasDetailedAnswers(true) // Reset to true for new quiz
-      setSavedDatabaseResult(null) // Clear saved database result
+      setHasDetailedAnswers(true)
+      setSavedDatabaseResult(null)
       setSavedReviewDetails([])
       
       // Initialize answers
@@ -531,6 +389,9 @@ function Quiz() {
           <div className="results-actions">
             <button className="results-button primary" onClick={handleBackToHome}>
               Back to Home
+            </button>
+            <button className="results-button tertiary" onClick={() => navigate('/marks')}>
+              View Marks
             </button>
             <button className="results-button secondary" onClick={handleRetakeQuiz}>
               Retake Quiz

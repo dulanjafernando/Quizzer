@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom'
+import { logout } from './api/authApi'
 import './App.css'
 
 function Navbar({ userName = "User" }) {
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    // TODO: Add logout logic here
-    console.log('Logout clicked')
+    logout()
     navigate('/login')
   }
 

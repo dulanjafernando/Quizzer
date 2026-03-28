@@ -3,10 +3,15 @@ const mongoose = require('mongoose');
 const quizHistorySchema = new mongoose.Schema(
   {
     userId: {
-      type: String,
-      required: true,
-      default: 'guest'
+        type: String,
+        required: true,
+        default: 'guest'
     },
+      userRef: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+      },
     userName: {
       type: String,
       required: true,
@@ -66,7 +71,10 @@ const quizHistorySchema = new mongoose.Schema(
 
 // Index for faster queries
 quizHistorySchema.index({ userId: 1, submittedAt: -1 });
+quizHistorySchema.index({ userRef: 1, submittedAt: -1 });
 quizHistorySchema.index({ category: 1 });
+quizHistorySchema.index({ userId: 1, category: 1 });
+quizHistorySchema.index({ userRef: 1, category: 1 });
 
 const QuizHistory = mongoose.model('QuizHistory', quizHistorySchema);
 

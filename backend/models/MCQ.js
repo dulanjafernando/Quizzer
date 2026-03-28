@@ -50,6 +50,9 @@ const mcqSchema = new mongoose.Schema(
   }
 );
 
+// Add index on category field for faster queries
+mcqSchema.index({ category: 1 });
+
 function arrayLimit(val) {
   return val.length === 4;
 }

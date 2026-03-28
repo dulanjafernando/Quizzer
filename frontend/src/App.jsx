@@ -7,7 +7,9 @@ import Quiz from './Quiz.jsx'
 import Admin from './Admin.jsx'
 import AddMCQ from './AddMCQ.jsx'
 import EditMCQ from './EditMCQ.jsx'
+import ViewMCQs from './ViewMCQs.jsx'
 import History from './History.jsx'
+import QuizDetails from './QuizDetails.jsx'
 
 function AuthPages() {
   return (
@@ -38,7 +40,9 @@ function App() {
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/marks" element={<History />} />
+        <Route path="/marks/:id" element={<QuizDetails />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/viewmcqs" element={<ViewMCQs />} />
         <Route path="/addmcq" element={<AddMCQ />} />
         <Route path="/editmcq" element={<EditMCQ />} />
         <Route path="/quiz/:category" element={<Quiz />} />

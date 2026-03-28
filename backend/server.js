@@ -1,26 +1,47 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const compression = require('compression');
 const connectDB = require('./config/db');
+const { seedDatabase } = require('./seeds');
 const mcqRoutes = require('./routes/mcqRoutes');
 const quizHistoryRoutes = require('./routes/quizHistoryRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
+// Connect to database and seed if needed
+const initializeDatabase = async () => {
+  await connectDB();
+  // Auto-seed database if in development or if collections are empty
+  if (process.env.NODE_ENV !== 'production') {
+    await seedDatabase();
+  }
+};
+
+initializeDatabase();
 
 const app = express();
 
 // Middleware
 app.use(cors());
+app.use(compression()); // Compress all responses for faster transfer
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Add cache headers for GET requests
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+  }
+  next();
+});
 
 // Routes
 app.use('/api/mcqs', mcqRoutes);
 app.use('/api/quiz-history', quizHistoryRoutes);
+app.use('/api/auth', authRoutes);
 
 // Root route
 app.get('/', (req, res) => {

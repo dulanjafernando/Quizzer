@@ -5,6 +5,7 @@ function Admin() {
   const navigate = useNavigate()
 
   const adminCards = [
+    { title: 'View All MCQs', description: 'View all quiz questions in the database', icon: '📋', route: '/viewmcqs' },
     { title: 'Add MCQ', description: 'Add new quiz questions to the database', icon: '➕', route: '/addmcq' },
     { title: 'Edit MCQ', description: 'Edit or delete existing quiz questions', icon: '✏️', route: '/editmcq' }
   ]

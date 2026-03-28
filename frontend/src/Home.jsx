@@ -28,11 +28,27 @@ function Home() {
       const history = await getQuizHistory(userId)
       
       const scores = {}
+      const categoryAttempts = {}
+      
+      // Group attempts by category, sorted by date
       history.forEach(quiz => {
-        scores[quiz.category] = {
+        if (!categoryAttempts[quiz.category]) {
+          categoryAttempts[quiz.category] = []
+        }
+        categoryAttempts[quiz.category].push({
           score: quiz.score,
           total: quiz.totalQuestions,
-          percentage: quiz.percentage.toFixed(1)
+          percentage: quiz.percentage.toFixed(1),
+          date: quiz.submittedAt
+        })
+      })
+      
+      // For each category, get the latest and previous attempt
+      Object.keys(categoryAttempts).forEach(category => {
+        const attempts = categoryAttempts[category].sort((a, b) => new Date(b.date) - new Date(a.date))
+        scores[category] = {
+          current: attempts[0], // Latest attempt
+          previous: attempts[1] || null // Previous attempt (if exists)
         }
       })
       
@@ -49,9 +65,12 @@ function Home() {
             const resultData = JSON.parse(savedResult)
             if (resultData.questions && Array.isArray(resultData.questions) && resultData.questions.length > 0) {
               scores[category] = {
-                score: resultData.score || 0,
-                total: resultData.questions.length,
-                percentage: ((resultData.score / resultData.questions.length) * 100).toFixed(1)
+                current: {
+                  score: resultData.score || 0,
+                  total: resultData.questions.length,
+                  percentage: ((resultData.score / resultData.questions.length) * 100).toFixed(1)
+                },
+                previous: null
               }
             }
           } catch (error) {
@@ -90,9 +109,24 @@ function Home() {
                   <div className="category-name">{category}</div>
                   {scoreData && (
                     <div className="category-score">
-                      <span className="score-badge">
-                        {scoreData.score}/{scoreData.total} ({scoreData.percentage}%)
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {/* Current Attempt */}
+                        <span className="score-badge">
+                          {scoreData.current.score}/{scoreData.current.total} ({scoreData.current.percentage}%)
+                        </span>
+                        {/* Previous Attempt */}
+                        {scoreData.previous && (
+                          <span style={{
+                            fontSize: '0.75rem',
+                            color: '#cbd5e1',
+                            opacity: 0.8,
+                            textAlign: 'center',
+                            fontWeight: '400'
+                          }}>
+                            Prev: {scoreData.previous.score}/{scoreData.previous.total} ({scoreData.previous.percentage}%)
+                          </span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </button>
