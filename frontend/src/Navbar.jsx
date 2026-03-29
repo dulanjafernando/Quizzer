@@ -15,9 +15,7 @@ function Navbar({ userName = "User" }) {
   }
 
   const handleProfileClick = () => {
-    // TODO: Navigate to profile page
-    console.log('Profile clicked')
-    // navigate('/profile')
+    navigate('/edit-profile')
   }
 
   return (
@@ -33,7 +31,7 @@ function Navbar({ userName = "User" }) {
             <span className="btn-text">History</span>
           </button>
           
-          <div className="navbar-profile" onClick={handleProfileClick}>
+          <div className="navbar-profile" onClick={handleProfileClick} style={{ cursor: 'pointer' }}>
             <div className="profile-avatar">
               {userName.charAt(0).toUpperCase()}
             </div>

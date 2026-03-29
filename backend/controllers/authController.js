@@ -52,4 +52,50 @@ const login = async (req, res, next) => {
   }
 };
 
-module.exports = { signup, login };
+const updateProfile = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const { name, newPassword, currentPassword } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // If updating password, verify current password
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: 'Current password is required to set new password' });
+      }
+
+      const match = await bcrypt.compare(currentPassword, user.password);
+      if (!match) {
+        return res.status(401).json({ message: 'Current password is incorrect' });
+      }
+
+      const saltRounds = 10;
+      user.password = await bcrypt.hash(newPassword, saltRounds);
+    }
+
+    // Update name
+    user.name = name;
+
+    await user.save();
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'change_this_secret', { expiresIn: '7d' });
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: { id: user._id, name: user.name, email: user.email },
+      token
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { signup, login, updateProfile };

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from './Navbar'
 import { getQuizHistory, deleteQuizHistory } from './api/quizHistoryApi'
+import { showToast } from './utils/toast'
 import './App.css'
 
 function History() {
@@ -130,11 +131,11 @@ function History() {
         
         // Reload history
         await loadQuizHistory()
-        
-        console.log('Quiz history deleted successfully')
+
+        showToast('Quiz deleted from the history', 'success', 3000, 'top-left')
       } catch (error) {
         console.error('Error deleting quiz history:', error)
-        alert('Failed to delete quiz history. Please try again.')
+        showToast('Failed to delete quiz history. Please try again.', 'error', 3000, 'top-left')
       }
     }
   }

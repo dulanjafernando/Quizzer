@@ -16,6 +16,7 @@ const saveUserData = (user, token) => {
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('userId', user.id || user._id); // Store user ID for quiz history
     localStorage.setItem('userName', user.name || 'User'); // Store user name for display
+    localStorage.setItem('userEmail', user.email || ''); // Store user email for display
     setAuthHeader(token);
   }
 };
@@ -43,7 +44,21 @@ export const logout = () => {
   localStorage.removeItem('user');
   localStorage.removeItem('userId');
   localStorage.removeItem('userName');
+  localStorage.removeItem('userEmail');
   setAuthHeader(null);
+};
+
+export const updateProfile = async (userId, { name, newPassword, currentPassword }) => {
+  const response = await axios.put(`${API_URL}/profile/${userId}`, {
+    name,
+    newPassword,
+    currentPassword
+  });
+  const data = response.data;
+  if (data && data.token && data.user) {
+    saveUserData(data.user, data.token);
+  }
+  return data;
 };
 
 // Initialize header if token exists on app load

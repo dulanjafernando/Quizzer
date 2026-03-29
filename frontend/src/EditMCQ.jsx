@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllMCQs, updateMCQ, deleteMCQ } from './api/mcqApi'
+import { showToast } from './utils/toast'
 import './App.css'
 
 function EditMCQ() {
@@ -78,11 +79,11 @@ function EditMCQ() {
     if (window.confirm('Are you sure you want to delete this question?')) {
       try {
         await deleteMCQ(questionId)
-        alert('Question deleted successfully!')
+        showToast('Question deleted successfully!', 'success', 3000, 'top-left')
         // Refresh the list
         fetchQuestions()
       } catch (error) {
-        alert('Failed to delete question')
+        showToast('Failed to delete question', 'error', 3000, 'top-left')
         console.error('Error deleting question:', error)
       }
     }

@@ -10,6 +10,7 @@ import EditMCQ from './EditMCQ.jsx'
 import ViewMCQs from './ViewMCQs.jsx'
 import History from './History.jsx'
 import QuizDetails from './QuizDetails.jsx'
+import EditProfile from './EditProfile.jsx'
 
 function AuthPages() {
   return (
@@ -41,6 +42,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/marks" element={<History />} />
         <Route path="/marks/:id" element={<QuizDetails />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/viewmcqs" element={<ViewMCQs />} />
         <Route path="/addmcq" element={<AddMCQ />} />
