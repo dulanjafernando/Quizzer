@@ -19,13 +19,42 @@ function History() {
       console.log('[History] Quiz just saved - showing success message')
       sessionStorage.removeItem('refreshHistoryAfterSave')
       sessionStorage.removeItem('lastSavedCategory')
+      // Store timestamp of submission
+      sessionStorage.setItem('quizSubmittedTime', Date.now().toString())
       setShowSuccess(true)
-      // Auto-hide success message after 4 seconds
-      setTimeout(() => setShowSuccess(false), 4000)
+    } else {
+      // Check if there was a recent submission within 5 minutes
+      const submittedTime = sessionStorage.getItem('quizSubmittedTime')
+      if (submittedTime) {
+        const elapsed = Date.now() - parseInt(submittedTime)
+        const fiveMinutes = 300000
+        if (elapsed < fiveMinutes) {
+          setShowSuccess(true)
+        } else {
+          sessionStorage.removeItem('quizSubmittedTime')
+          setShowSuccess(false)
+        }
+      }
     }
+    
+    // Set up interval to check elapsed time
+    const interval = setInterval(() => {
+      const submittedTime = sessionStorage.getItem('quizSubmittedTime')
+      if (submittedTime) {
+        const elapsed = Date.now() - parseInt(submittedTime)
+        const fiveMinutes = 300000
+        if (elapsed >= fiveMinutes) {
+          sessionStorage.removeItem('quizSubmittedTime')
+          setShowSuccess(false)
+        }
+      }
+    }, 10000) // Check every 10 seconds
     
     // Load quiz history
     loadQuizHistory()
+
+    // Cleanup interval on unmount
+    return () => clearInterval(interval)
   }, [])
 
   const loadQuizHistory = async () => {
@@ -348,6 +377,183 @@ function History() {
               >
                 Retry
               </button>
+            </div>
+          )}
+
+          {/* Latest Quiz Result Card */}
+          {showSuccess && quizHistory.length > 0 && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 150, 100, 0.1) 100%)',
+              border: '2px solid #10b981',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              marginBottom: '2rem',
+              boxShadow: '0 8px 20px rgba(16, 185, 129, 0.15)'
+            }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '2rem'
+              }}>
+                {/* Left: Score Circle */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  minWidth: '120px'
+                }}>
+                  <div style={{
+                    position: 'relative',
+                    width: '100px',
+                    height: '100px'
+                  }}>
+                    <svg width="100" height="100" style={{ transform: 'rotate(-90deg)' }}>
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        fill="none"
+                        stroke="rgba(148, 163, 184, 0.2)"
+                        strokeWidth="3"
+                      />
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        fill="none"
+                        stroke={quizHistory[0]?.percentage >= 70 ? '#10b981' : quizHistory[0]?.percentage >= 50 ? '#f59e0b' : '#ef4444'}
+                        strokeWidth="3"
+                        strokeDasharray={`${(quizHistory[0]?.percentage / 100) * 282.7} 282.7`}
+                        style={{ transition: 'stroke-dasharray 0.5s ease' }}
+                      />
+                    </svg>
+                    <div style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{
+                        fontSize: '1.8rem',
+                        fontWeight: '700',
+                        color: quizHistory[0]?.percentage >= 70 ? '#10b981' : quizHistory[0]?.percentage >= 50 ? '#f59e0b' : '#ef4444'
+                      }}>
+                        {quizHistory[0]?.percentage?.toFixed(1)}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle: Quiz Details */}
+                <div style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.8rem'
+                }}>
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: '1.3rem',
+                    fontWeight: '700',
+                    color: '#f1f5f9'
+                  }}>
+                    🎉 Latest Quiz Submitted
+                  </h3>
+                  <div style={{
+                    display: 'flex',
+                    gap: '1rem',
+                    flexWrap: 'wrap'
+                  }}>
+                    <div>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        color: '#94a3b8',
+                        textTransform: 'uppercase',
+                        fontWeight: '600',
+                        letterSpacing: '0.05em',
+                        marginBottom: '0.25rem'
+                      }}>
+                        Category
+                      </div>
+                      <div style={{
+                        fontSize: '1.1rem',
+                        fontWeight: '700',
+                        color: '#cbd5e1'
+                      }}>
+                        {quizHistory[0]?.category}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        color: '#94a3b8',
+                        textTransform: 'uppercase',
+                        fontWeight: '600',
+                        letterSpacing: '0.05em',
+                        marginBottom: '0.25rem'
+                      }}>
+                        Score
+                      </div>
+                      <div style={{
+                        fontSize: '1.1rem',
+                        fontWeight: '700',
+                        color: '#60a5fa'
+                      }}>
+                        {quizHistory[0]?.score} / {quizHistory[0]?.totalQuestions}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{
+                        fontSize: '0.75rem',
+                        color: '#94a3b8',
+                        textTransform: 'uppercase',
+                        fontWeight: '600',
+                        letterSpacing: '0.05em',
+                        marginBottom: '0.25rem'
+                      }}>
+                        Status
+                      </div>
+                      <div style={{
+                        fontSize: '1rem',
+                        fontWeight: '700',
+                        color: quizHistory[0]?.passed ? '#10b981' : '#ef4444'
+                      }}>
+                        {quizHistory[0]?.passed ? '✓ Passed' : '✗ Failed'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Action Button */}
+                <button
+                  onClick={() => navigate(`/marks/${quizHistory[0]?._id}`)}
+                  style={{
+                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    color: 'white',
+                    border: 'none',
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '0.5rem',
+                    cursor: 'pointer',
+                    fontSize: '0.95rem',
+                    fontWeight: '700',
+                    transition: 'all 0.3s ease',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(16, 185, 129, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  📑 View Details
+                </button>
+              </div>
             </div>
           )}
 
