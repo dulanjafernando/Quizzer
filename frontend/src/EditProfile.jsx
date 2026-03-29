@@ -48,10 +48,12 @@ function EditProfile() {
       return
     }
 
+    /* 
     if (formData.name.trim() === userName && !formData.newPassword) {
       setError('No changes detected. Please modify your name or password.')
       return
     }
+    */
 
     if (passwordMode) {
       if (!formData.currentPassword) {

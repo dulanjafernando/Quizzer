@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const QuizHistory = require('../models/QuizHistory');
 
 const signup = async (req, res, next) => {
   try {
@@ -83,6 +84,15 @@ const updateProfile = async (req, res, next) => {
 
     // Update name
     user.name = name;
+
+    // Update the user's name in their quiz histories explicitly to ensure sync
+    try {
+      await QuizHistory.updateMany(
+        { $or: [{ userId: userId }, { userRef: userId }] },
+        { $set: { userName: name } }
+      );
+    } catch (syncError) {
+      console.error('Error syncing quiz history usernames:', syncError);
 
     await user.save();
 
