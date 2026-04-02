@@ -54,6 +54,62 @@ const seedMCQs = async () => {
       timeLimit: 60,
       explanation: 'Pure water at 25°C has a pH of 7, which is neutral.',
     },
+    {
+      category: 'Chemistry',
+      question: 'What is the molar mass of Carbon Dioxide (CO2)?',
+      options: ['28 g/mol', '32 g/mol', '44 g/mol', '64 g/mol'],
+      correctAnswer: '44 g/mol',
+      timeLimit: 60,
+      explanation: 'Molar mass of CO2 = 12 + (16 × 2) = 44 g/mol.',
+    },
+    {
+      category: 'Chemistry',
+      question: 'Which type of chemical bond involves the transfer of electrons?',
+      options: ['Covalent bond', 'Ionic bond', 'Metallic bond', 'Hydrogen bond'],
+      correctAnswer: 'Ionic bond',
+      timeLimit: 60,
+      explanation: 'An ionic bond involves the transfer of electrons from one atom to another, forming ions.',
+    },
+    {
+      category: 'Chemistry',
+      question: 'What is the oxidation state of Hydrogen in H2O?',
+      options: ['-2', '-1', '+1', '+2'],
+      correctAnswer: '+1',
+      timeLimit: 60,
+      explanation: 'In H2O, hydrogen has an oxidation state of +1 and oxygen has an oxidation state of -2.',
+    },
+    {
+      category: 'Chemistry',
+      question: 'What is the process of change of a substance directly from solid to gas?',
+      options: ['Melting', 'Evaporation', 'Sublimation', 'Condensation'],
+      correctAnswer: 'Sublimation',
+      timeLimit: 60,
+      explanation: 'Sublimation is the transition of a substance directly from the solid phase to the gas phase.',
+    },
+    {
+      category: 'Chemistry',
+      question: 'What is the most electronegative element?',
+      options: ['Oxygen', 'Nitrogen', 'Fluorine', 'Chlorine'],
+      correctAnswer: 'Fluorine',
+      timeLimit: 60,
+      explanation: 'Fluorine is the most electronegative element on the periodic table.',
+    },
+    {
+      category: 'Chemistry',
+      question: 'Which of the following is an example of an endothermic reaction?',
+      options: ['Combustion', 'Neutralization', 'Melting of ice', 'Rusting of iron'],
+      correctAnswer: 'Melting of ice',
+      timeLimit: 60,
+      explanation: 'Melting of ice is an endothermic reaction that absorbs heat from the surroundings.',
+    },
+    {
+      category: 'Chemistry',
+      question: 'What is the atomic number of Sodium (Na)?',
+      options: ['10', '11', '12', '13'],
+      correctAnswer: '11',
+      timeLimit: 60,
+      explanation: 'Sodium has an atomic number of 11, meaning it has 11 protons in its nucleus.',
+    },
 
     // Biology Questions
     {
@@ -215,12 +271,22 @@ const seedMCQs = async () => {
   try {
     // Check if MCQs already exist
     const count = await MCQ.countDocuments();
+    const chemistryCount = await MCQ.countDocuments({ category: 'Chemistry' });
+    
     if (count === 0) {
       const mcqs = await MCQ.insertMany(sampleMCQs);
       console.log(`✓ Seeded ${mcqs.length} MCQs into database`);
       return true;
+    } else if (chemistryCount < 10) {
+      // If Chemistry has less than 10 MCQs, delete Chemistry ones and reseed them
+      console.log(`ℹ Chemistry category has ${chemistryCount} MCQs. Updating to 10...`);
+      await MCQ.deleteMany({ category: 'Chemistry' });
+      const chemistryMCQs = sampleMCQs.filter(mcq => mcq.category === 'Chemistry');
+      await MCQ.insertMany(chemistryMCQs);
+      console.log(`✓ Updated Chemistry category with 10 MCQs`);
+      return true;
     } else {
-      console.log(`ℹ Database already contains ${count} MCQs. Skipping seed.`);
+      console.log(`ℹ Database already contains ${count} MCQs with ${chemistryCount} Chemistry MCQs. Skipping seed.`);
       return false;
     }
   } catch (error) {

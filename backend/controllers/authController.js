@@ -93,6 +93,7 @@ const updateProfile = async (req, res, next) => {
       );
     } catch (syncError) {
       console.error('Error syncing quiz history usernames:', syncError);
+    }
 
     await user.save();
 
